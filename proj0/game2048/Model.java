@@ -1,6 +1,7 @@
 package game2048;
 
 import java.util.Formatter;
+import java.util.Iterator;
 import java.util.Observable;
 
 
@@ -137,8 +138,16 @@ public class Model extends Observable {
      *  Empty spaces are stored as null.
      * */
     public static boolean emptySpaceExists(Board b) {
+        int size = b.size();
+        for(int i = 0; i < 4; i++){
+            for(int j = 0; j < 4; j++){
+                if(b.tile(i, j) == null){
+                    return false;
+                }
+            }
+        }
         // TODO: Fill in this function.
-        return false;
+        return true;
     }
 
     /**
@@ -148,17 +157,70 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+//        for (int i = 0; i < 4; i++) {
+//            for (int j = 0; j < 4; j++) {
+//                if (b.tile(i, j) == null) continue;
+//                if (b.tile(i, j).value() == 2048) {
+//                    return true;
+//                }
+//            }
+//        }
+//        return false;
+//    }
+        for (Iterator<Tile> it = b.iterator(); it.hasNext(); ) {
+            Tile tile = it.next();
+            if (tile == null) continue;
+            if (tile.value() == 2048) return true;
+        }
         return false;
     }
-
     /**
      * Returns true if there are any valid moves on the board.
      * There are two ways that there can be valid moves:
      * 1. There is at least one empty space on the board.
      * 2. There are two adjacent tiles with the same value.
      */
+    private static boolean atLeastOneMoveExists_col(Tile[] col) {
+        for (int i = 0; i < col.length - 1; i++) {
+            if (col[i] == null) continue;
+            if (col[i+1] == null || col[i].value() == col[i+1].value()) return true;
+            for (int j = i + 2; j < col.length; j++){
+                if (col[j] == null) return true;
+            }
+        }
+        return false;
+    }
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
+//        for (int i = 0; i < b.size(); i++) {
+//            Tile[] col = new Tile[b.size()];
+//            for (int j = 0; j < b.size(); j++) {
+//                col[j] = b.tile(i, j);
+//            }
+//            if (atLeastOneMoveExists_col(col)) return true;
+//        }
+//        return false;
+        for (int i = 0; i < b.size(); i++) {
+            for (int j = 0; j < b.size(); j++) {
+                if (b.tile(j, i) == null) {
+                    if (j != b.size() - 1) {
+                        if (b.tile(j + 1, i) != null) return true;
+                    }
+                    if (i != b.size() - 1) {
+                        if (b.tile(j, j+1) != null) return true;
+                    }
+                }
+//                if ( (j != b.size() ? (b.tile(j + 1, i) == null || b.tile(j, i).value() == b.tile(j + 1, i).value()) : false) || (i != b.size() ? (b.tile(j, i + 1) == null || b.tile(j, i).value() == b.tile(j, i + 1).value()) : false)) return true;
+                if (j != b.size() - 1) {
+                    if (b.tile(j + 1, i) == null) return true;
+                    if (b.tile(j + 1, i).value() == b.tile(j, i).value()) return true;
+                }
+                if (i != b.size() - 1) {
+                    if (b.tile(j, i+1) == null) return true;
+                    if (b.tile(j, i+1).value() == b.tile(j, i).value()) return true;
+                }
+            }
+        }
         return false;
     }
 
