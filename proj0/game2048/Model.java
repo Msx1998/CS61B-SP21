@@ -109,16 +109,29 @@ public class Model extends Observable {
      * */
     public boolean tilt_up() {
         boolean changed = false;
-        top_row = size() - 1;
-        for (int c = 0; c < top_row; c++) {
-            for (int r = top_row - 1; r > 0; r--) {
-                if (tile(c, r) == null) continue; 
+        int top_row = size() - 1;
+        for (int c = 0; c <= top_row; c++) {
+            int[] merged = {0, 0, 0, 0};
+            for (int r = top_row - 1; r >= 0; r -= 1) {
+                if (tile(c, r) == null) continue;
                 int pointer = r + 1;
-                while (tile(c,pointer) == null && pointer < top_row) {
-                    pointer++;
+                while (tile(c, pointer) == null && pointer < top_row) {
+                    pointer += 1;
                 }
-                if (tile(c, r).value() == tile(c,pointer).value() || tile(c,pointer) == null) {
-                    board.move(c, p, tile(c, r));
+                if (tile(c, pointer) == null && pointer == top_row) {
+                    board.move(c, pointer, tile(c, r));
+                    changed = true;
+                }
+                else if (tile(c, pointer) != null && tile(c, r).value() == tile(c, pointer).value()) {
+                    if (merged[pointer] == 0) {
+                        board.move(c, pointer, tile(c, r));
+                        merged[pointer] = 1;
+                        score += tile(c, pointer).value();
+                        changed = true;
+                    }
+                }
+                if (pointer > r + 1 && tile(c, r) != null){
+                    board.move(c, pointer - 1, tile(c, r));
                     changed = true;
                 }
             }
@@ -134,8 +147,8 @@ public class Model extends Observable {
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
         board.startViewingFrom(side);
-        changed = tilt_up()
-
+        changed = tilt_up();
+        board.startViewingFrom(Side.NORTH);
         checkGameOver();
         if (changed) {
             setChanged();
@@ -160,15 +173,15 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         int size = b.size();
-        for(int i = 0; i < 4; i++){
-            for(int j = 0; j < 4; j++){
+        for(int i = 0; i < size; i++){
+            for(int j = 0; j < size; j++){
                 if(b.tile(i, j) == null){
-                    return false;
+                    return true;
                 }
             }
         }
         // TODO: Fill in this function.
-        return true;
+        return false;
     }
 
     /**
