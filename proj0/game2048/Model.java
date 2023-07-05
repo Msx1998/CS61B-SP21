@@ -106,6 +106,25 @@ public class Model extends Observable {
      *    value, then the leading two tiles in the direction of motion merge,
      *    and the trailing tile does not.
      * */
+    public boolean tilt_up() {
+        boolean changed = false;
+        top_row = size() - 1;
+        for (int c = 0; c < top_row; c++) {
+            for (int r = top_row - 1; r > 0; r--) {
+                if (tile(c, r) == null) continue; 
+                int pointer = r + 1;
+                while (tile(c,pointer) == null && pointer < top_row) {
+                    pointer++;
+                }
+                if (tile(c, r).value() == tile(c,pointer).value() || tile(c,pointer) == null) {
+                    board.move(c, p, tile(c, r));
+                    changed = true;
+                }
+            }
+        }
+
+        return changed;
+    }
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
@@ -113,6 +132,8 @@ public class Model extends Observable {
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
+        board.startViewingFrom(side);
+        changed = tilt_up()
 
         checkGameOver();
         if (changed) {
